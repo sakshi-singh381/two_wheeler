@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoForge - The Digital Showroom</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Three.js for 3D Animation --><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Use Inter font --><style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        /* Custom scrollbar for a sleek look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #171717; } /* Updated */
+        ::-webkit-scrollbar-thumb { background: #FF5733; border-radius: 4px; } /* Ember */
+        ::-webkit-scrollbar-thumb:hover { background: #FF8D6A; } /* Lighter Ember */
+
+        /* LUXURY EMBER/DARK SLATE PALETTE */
+        .dark .page-section {
+             background-color: #171717; /* Updated to Vanta Black equivalent */
+             color: #e5e5e5;
+        }
+        .light .page-section {
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+        .text-gradient {
+            background: linear-gradient(90deg, #FF5733 0%, #FFFFFF 100%); /* Ember to White */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Enhanced Card Hover Effect (Ember Glow/Lift) */
+        .card-hover:hover {
+            transform: translateY(-5px) scale(1.01); 
+            box-shadow: 0 8px 30px rgba(255, 87, 51, 0.15); /* Ember glow */
+            border-color: rgba(255, 87, 51, 0.4);
+        }
+
+        /* -------------------------- ANIMATIONS -------------------------- */
+
+        /* Hero Button Pulse (Ember) */
+        @keyframes pulse-shadow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 87, 51, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 87, 51, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 87, 51, 0); }
+        }
+        .pulse-animation {
+            animation: pulse-shadow 2.5s infinite;
+        }
+
+        /* Scroll Animation Base */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal Animation */
+        @keyframes modal-scale-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-animate {
+            animation: modal-scale-in 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        /* Image Hover Sweep Effect */
+        .img-sweep-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .img-sweep-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 40%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2); 
+            transform: skewX(-20deg);
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .img-sweep-container:hover::after {
+            transform: translateX(350%) skewX(-20deg);
+        }
+
+        /* Wavy Footer Separator (Dark Slate) */
+        .footer-wave {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 0;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        /* Dark mode SVG for wave shape */
+        .dark .footer-wave {
+            /* Updated fill color to match the new dark theme background */
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23171717' fill-opacity='1' d='M0,160L80,138.7C160,117,320,75,480,90.7C640,107,800,181,960,192C1120,203,1280,149,1360,122.7L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+        }
+        /* Light mode SVG for wave shape */
+        .light .footer-wave {
+             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,160L80,138.7C160,117,320,75,480,90.7C640,107,800,181,960,192C1120,203,1280,149,1360,122.7L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+        }
+
+        /* --- Glassmorphism Style (Dark Slate) --- */
+        .glass-panel {
+            background-color: rgba(36, 36, 36, 0.8); /* Updated to new slate-mid */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 87, 51, 0.3); /* Ember border */
+        }
+        .light .glass-panel {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        /* --- Active Nav Link Indicator (Ember) --- */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .active-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #FF5733, #FF8D6A);
+            border-radius: 2px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .font-header {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- Status Light Indicator (Ember Accent) --- */
+        .status-light {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+            animation: light-pulse 1.5s infinite;
+        }
+        @keyframes light-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .status-in-stock { background-color: #10b981; color: #10b981; } /* Green */
+        .status-out-stock { background-color: #ef4444; color: #ef4444; } /* Red */
+
+        /* 3D Viewer styles */
+        #threejs-modal-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        #threejs-modal-container canvas {
+            display: block;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-gold': '#FF5733', /* Vibrant Ember Orange */
+                        'secondary-gold': '#FF8D6A', /* Lighter Ember */
+                        'slate-dark': '#171717', /* Updated background color */
+                        'slate-mid': '#242424', /* Updated card background color */
+                    },
+                    ringColor: {
+                        'primary-gold': '#FF5733',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="dark bg-slate-dark transition-colors duration-300">
+
+    <!-- Global State & Data --><script>
+        const VEHICLES = [
+            // UPDATED IMAGE URLs with unique colors and text for distinction
+            { id: 1, type: 'Bike', name: 'Velocity R1000', price: 185000, engine: '1000cc', mileage: '15 kmpl', stock: true, img: "https://placehold.co/800x400/FF0000/FFFFFF?text=Red+Sport+Bike", specs: "High-performance sport bike, excellent speed, aggressive riding posture. Features advanced ABS and customizable riding modes. This is our flagship racing machine." },
+            { id: 2, type: 'Bike', name: 'Explorer ADV 500', price: 110000, engine: '500cc', mileage: '28 kmpl', stock: true, img: "https://placehold.co/800x400/0033CC/FFFFFF?text=Blue+Adventure+Tourer", specs: "Comfortable tourer, great suspension for bad roads, high ground clearance. Includes large windshield and luggage mounts. Perfect for cross-country adventures." },
+            { id: 3, type: 'Scooter', name: 'Urban Glide 125', price: 75000, engine: '125cc', mileage: '45 kmpl', stock: false, img: "https://placehold.co/800x400/009900/FFFFFF?text=Green+Urban+Scooter", specs: "City-friendly, low maintenance, excellent mileage, easy to maneuver. Equipped with external fuel filler and LED lighting. The ideal commuter." },
+            { id: 4, type: 'Scooter', name: 'E-Cruiser Pro', price: 95000, engine: 'Electric', mileage: '90 km/charge', stock: true, img: "https://placehold.co/800x400/FFCC00/000000?text=Yellow+Electric+Scooter", specs: "Zero emission, high torque, long battery life, perfect for short commutes. Features regenerative braking and smart connectivity. Experience silent power." },
+            { id: 5, type: 'Bike', name: 'Classic Retro 350', price: 155000, engine: '350cc', mileage: '35 kmpl', stock: true, img: "https://placehold.co/800x400/444444/FFFFFF?text=Black+Classic+Motorcycle", specs: "Vintage styling, thumping engine sound, relaxed riding dynamics. Highly customizable with chrome accents. A nod to the golden age of motoring." },
+        ];
+
+        const REVIEWS = [
+            { name: 'Arjun S.', rating: 5, date: '2024-09-15', text: 'The Velocity R1000 is a beast! Smooth booking process and fantastic service from the MotoForge team.' },
+            { name: 'Priya K.', rating: 4, date: '2024-10-01', text: 'Love my Urban Glide. The online comparison tool really helped me choose the right scooter for my city commute.' },
+            { name: 'Sameer M.', rating: 5, date: '2024-10-20', text: 'Booked a test ride for the E-Cruiser Pro. Everything was handled professionally and quickly. Highly recommend!' },
+        ];
+
+        let state = {
+            currentPage: 'home',
+            isDark: true,
+            compareVehicles: [],
+            // Updated initial message to English
+            chatHistory: [{ role: "assistant", text: "Hello! I'm your MotoForge AI Assistant. Tell me about your needs (e.g., budget, usage, type) and I'll recommend the best vehicle for you." }],
+            isAssistantOpen: false,
+        };
+        
+        let scene, camera, renderer, torus, frame, animateLoopId; 
+
+        // --- GEMINI API INTEGRATION (AI Assistant) ---
+        const API_KEY = ""; 
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+        const MAX_RETRIES = 3;
+
+        async function callGeminiApi(payload) {
+            for (let i = 0; i < MAX_RETRIES; i++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status >= 500) throw new Error(`Server error: ${response.status}`);
+                        const errorBody = await response.json();
+                        console.error('API Error:', errorBody);
+                        throw new Error(errorBody.error?.message || 'Gemini API call failed.');
+                    }
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    return text || "Sorry, I couldn't generate a recommendation right now."; // Updated error message
+
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error.message);
+                    if (i === MAX_RETRIES - 1) throw new Error("API call failed after multiple retries.");
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                }
+            }
+        }
+
+        async function recommendVehicle(userQuery) {
+            const vehicleDataString = JSON.stringify(VEHICLES.map(v => ({ name: v.name, type: v.type, price: v.price, engine: v.engine, mileage: v.mileage, stock: v.stock })), null, 2);
+            const systemPrompt = `You are MotoForge's expert sales assistant. Your task is to analyze the user's requirements and recommend the single best two-wheeler from the provided JSON list.
+            1. Respond in a friendly, professional tone. Keep the entire response in English.
+            2. Start by stating the recommended vehicle name clearly.
+            3. Justify your choice by comparing the recommended vehicle's specs (Engine, Mileage, Price, Stock) directly against the user's needs.
+            4. Provide your response in a single, well-structured paragraph.
+            5. Vehicle Data: ${vehicleDataString}`; // System prompt updated to mandate English
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            setAssistantLoading(true);
+            let recommendationText = "";
+            try {
+                recommendationText = await callGeminiApi(payload);
+            } catch (e) {
+                recommendationText = `Error: ${e.message}`;
+            }
+            setAssistantLoading(false);
+            displayAssistantResponse(recommendationText, 'assistant');
+        }
+
+        function setAssistantLoading(isLoading) {
+            const btn = document.getElementById('assistant-submit-btn');
+            const input = document.getElementById('assistant-input');
+            const spinner = document.getElementById('assistant-spinner');
+            const sendIcon = document.getElementById('assistant-send-icon');
+            if (isLoading) {
+                btn.disabled = true;
+                input.disabled = true;
+                spinner.classList.remove('hidden');
+                sendIcon.classList.add('hidden');
+            } else {
+                btn.disabled = false;
+                input.disabled = false;
+                spinner.classList.add('hidden');
+                sendIcon.classList.remove('hidden');
+            }
+        }
+
+        function displayAssistantResponse(text, role) {
+            if (role) {
+                state.chatHistory.push({ role, text });
+            }
+            const chatBody = document.getElementById('assistant-chat-body');
+            if (!chatBody) return;
+            chatBody.innerHTML = state.chatHistory.map(msg => `
+                <div class="flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-3">
+                    <div class="max-w-[85%] p-3 text-sm shadow-md transition duration-300
+                        ${msg.role === 'user' ? 'assistant-message-user text-white' : 'assistant-message-ai text-gray-200'}">
+                        <span class="font-bold ${msg.role === 'assistant' ? 'text-primary-gold' : 'text-secondary-gold'}">${msg.role === 'assistant' ? 'AI Sales Expert' : 'You'}:</span>
+                        <p class="mt-1 whitespace-pre-wrap">${text}</p>
+                    </div>
+                </div>
+            `).join('');
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function handleAssistantSubmit(event) {
+            event.preventDefault();
+            const inputElement = document.getElementById('assistant-input');
+            const query = inputElement.value.trim();
+            if (query) {
+                displayAssistantResponse(query, 'user');
+                recommendVehicle(query);
+                inputElement.value = '';
+            }
+        }
+
+        function toggleAssistant() {
+            state.isAssistantOpen = !state.isAssistantOpen;
+            const chatBox = document.getElementById('assistant-chat-box');
+            const chatIcon = document.getElementById('assistant-icon');
+
+            if (state.isAssistantOpen) {
+                chatBox.classList.remove('hidden');
+                chatBox.classList.add('modal-animate');
+                chatIcon.classList.replace('fa-robot', 'fa-times');
+                displayAssistantResponse(); // Re-render history
+            } else {
+                chatBox.classList.add('hidden');
+                chatIcon.classList.replace('fa-times', 'fa-robot');
+            }
+        }
+
+
+        // --- THREE.JS ANIMATED VEHICLE ELEMENT (Interactive Viewer) ---
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let rotationSpeed = 0.005;
+
+        function setupDragControls(canvas) {
+            const updateMousePosition = (e) => {
+                let rect = canvas.getBoundingClientRect();
+                let x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+                let y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+                return { x: x - rect.left, y: y - rect.top };
+            };
+
+            const onMove = (e) => {
+                e.preventDefault();
+                if (!isDragging) return;
+
+                const newMousePosition = updateMousePosition(e);
+
+                const deltaX = newMousePosition.x - previousMousePosition.x;
+                const deltaY = newMousePosition.y - previousMousePosition.y;
+
+                // Rotate the objects based on mouse movement
+                torus.rotation.y += deltaX * 0.005;
+                frame.rotation.y += deltaX * 0.005;
+                torus.rotation.x += deltaY * 0.005;
+                frame.rotation.x += deltaY * 0.005;
+
+                previousMousePosition = newMousePosition;
+            };
+
+            const onStart = (e) => {
+                isDragging = true;
+                previousMousePosition = updateMousePosition(e);
+            };
+
+            const onEnd = () => {
+                isDragging = false;
+            };
+
+            canvas.addEventListener('mousedown', onStart);
+            canvas.addEventListener('mouseup', onEnd);
+            canvas.addEventListener('mousemove', onMove);
+            canvas.addEventListener('mouseleave', onEnd);
+            
+            canvas.addEventListener('touchstart', (e) => { onStart(e); rotationSpeed = 0; }, { passive: false });
+            canvas.addEventListener('touchend', (e) => { onEnd(e); rotationSpeed = 0.005; });
+            canvas.addEventListener('touchmove', onMove, { passive: false });
+        }
+
+
+        function setup3DScene() {
+            const container = document.getElementById('threejs-modal-container');
+            if (!container) return;
+
+            // Clear previous scene/renderer
+            if (renderer) {
+                 renderer.dispose();
+                 container.innerHTML = '';
+            }
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x000000, 0); // Transparent background
+            container.appendChild(renderer.domElement);
+
+            // Lighting (More dramatic studio lighting)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            keyLight.position.set(5, 5, 5).normalize();
+            scene.add(keyLight);
+            const fillLight = new THREE.DirectionalLight(0x7C7C7C, 1.0);
+            fillLight.position.set(-5, 0, 5).normalize();
+            scene.add(fillLight);
+
+            // Create a stylized, abstract component (Torus + Cyliinders for Axles)
+            const torusGeometry = new THREE.TorusGeometry(1.5, 0.4, 16, 100);
+            const torusMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xFF5733, // Ember color
+                metalness: 1.0,
+                roughness: 0.1,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.1
+            });
+            torus = new THREE.Mesh(torusGeometry, torusMaterial);
+            scene.add(torus);
+
+            // Metallic Frame/Chassis
+            const frameGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 32);
+            const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x99A9B4, metalness: 0.9, roughness: 0.4 });
+            frame = new THREE.Mesh(frameGeometry, frameMaterial);
+            frame.rotation.z = Math.PI / 2; // Horizontal
+            scene.add(frame);
+
+            camera.position.z = 4;
+
+            setupDragControls(renderer.domElement);
+
+            // Animation loop
+            function animate() {
+                animateLoopId = requestAnimationFrame(animate);
+
+                // Auto-rotate slowly when not dragging
+                if (!isDragging) {
+                    torus.rotation.y += rotationSpeed;
+                    frame.rotation.y += rotationSpeed;
+                }
+
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                // Ensure the canvas container is available (only in modal)
+                const container = document.getElementById('threejs-modal-container');
+                if (container && container.contains(renderer.domElement)) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+        }
+
+        function show3DViewerModal() {
+             document.getElementById('viewer-modal').classList.remove('hidden');
+             document.getElementById('viewer-modal-box').classList.add('modal-animate');
+             
+             // Wait for modal to be visible before setting up 3D
+             requestAnimationFrame(() => {
+                 const container = document.getElementById('threejs-modal-container');
+                 // Set fixed size for the viewer within the modal for stability
+                 container.style.width = '100%'; 
+                 container.style.height = '400px'; 
+                 setup3DScene();
+             });
+        }
+
+        function hide3DViewerModal() {
+            document.getElementById('viewer-modal').classList.add('hidden');
+            document.getElementById('viewer-modal-box').classList.remove('modal-animate');
+            // Stop animation loop when closing
+            if (animateLoopId) {
+                cancelAnimationFrame(animateLoopId);
+            }
+             // Clean up renderer and canvas
+            if (renderer) {
+                 renderer.dispose();
+                 document.getElementById('threejs-modal-container').innerHTML = '';
+            }
+        }
+        
+        // --- Intersection Observer Setup ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    if (entry.target.classList.contains('card-stagger')) {
+                        const index = parseInt(entry.target.dataset.index) || 0;
+                        entry.target.style.transitionDelay = `${Math.min(index * 0.1, 0.3)}s`;
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+
+        function observeElements(containerId, selector = '.animate-on-scroll') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.querySelectorAll(selector).forEach(el => {
+                el.classList.remove('is-visible');
+                observer.observe(el);
+            });
+        }
+
+        // --- Router ---
+        function updateActiveNav(page) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active-nav-link', 'text-primary-gold', 'font-semibold');
+                link.classList.add('text-gray-300', 'font-medium');
+                if (link.dataset.page === page) {
+                    link.classList.add('active-nav-link', 'text-primary-gold', 'font-semibold');
+                    link.classList.remove('text-gray-300', 'font-medium');
+                }
+            });
+        }
+
+        function navigate(page) {
+            state.currentPage = page;
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.style.display = section.id === `page-${page}` ? 'block' : 'none';
+            });
+
+            updateActiveNav(page);
+
+            if (page === 'explore') {
+                renderVehicles(VEHICLES);
+            }
+            requestAnimationFrame(() => {
+                if (page === 'home') observeElements('page-home', '.animate-on-scroll');
+                if (page === 'explore') observeElements('vehicle-grid', '.card-stagger');
+                if (page === 'reviews') observeElements('reviews-grid', '.card-stagger');
+                if (page === 'contact') observeElements('page-contact', '.animate-on-scroll');
+            });
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleTheme() {
+            state.isDark = !state.isDark;
+            document.body.classList.toggle('dark', state.isDark);
+            document.body.classList.toggle('light', !state.isDark);
+            // Updated class toggles to reflect new 'slate-dark' mapping
+            document.body.classList.toggle('bg-slate-dark', state.isDark);
+            document.body.classList.toggle('bg-white', !state.isDark);
+            const icon = document.getElementById('theme-toggle-icon');
+            if (icon) {
+                 icon.classList.toggle('fa-sun', state.isDark);
+                 icon.classList.toggle('fa-moon', !state.isDark);
+            }
+            if (state.currentPage === 'explore') {
+                renderVehicles(VEHICLES);
+            }
+        }
+
+        // --- Explore Page Logic ---
+        function renderVehicles(vehicles) {
+            const container = document.getElementById('vehicle-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            vehicles.forEach((v, index) => {
+                const statusLightClass = v.stock ? 'status-in-stock' : 'status-out-stock';
+                const stockText = v.stock ? 'In Stock' : 'Out of Stock';
+
+                const stockBadge = `
+                    <div class="flex items-center text-sm font-semibold ${v.stock ? 'text-green-400' : 'text-red-400'}">
+                        <span class="status-light ${statusLightClass}"></span>
+                        ${stockText}
+                    </div>
+                `;
+
+                const compareCheckbox = `<input type="checkbox" data-id="${v.id}" onchange="toggleCompare(${v.id})" class="form-checkbox h-5 w-5 text-primary-gold transition duration-150 ease-in-out rounded border-gray-600 focus:ring-primary-gold" ${state.compareVehicles.includes(v.id) ? 'checked' : ''}>`;
+
+                const cardHtml = `
+                    <div class="card-hover card-stagger animate-on-scroll" data-index="${index}" >
+                        <div class="transition-all duration-300 p-4 rounded-xl shadow-lg border border-[#333333] dark:border-[#333333]
+                                    ${state.isDark ? 'bg-slate-mid' : 'bg-gray-50'}">
+                            <div class="img-sweep-container w-full h-40 rounded-lg mb-4">
+                                <img src="${v.img}" alt="${v.name}" class="w-full h-full object-cover rounded-lg opacity-90 transition duration-500 hover:scale-[1.03]">
+                            </div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold font-header text-gradient">${v.name}</h3>
+                                <span class="text-lg font-semibold text-primary-gold">₹${(v.price / 1000).toFixed(0)}K</span>
+                            </div>
+                            <p class="text-sm mb-4 ${state.isDark ? 'text-gray-400' : 'text-gray-600'}">${v.type} | ${v.engine} | ${v.mileage}</p>
+                            <div class="flex justify-between items-center mb-4">
+                                ${stockBadge}
+                                <label class="flex items-center space-x-2 text-sm">
+                                    ${compareCheckbox}
+                                    <span class="${state.isDark ? 'text-gray-300' : 'text-gray-700'}">Compare</span>
+                                </label>
+                            </div>
+                            <button onclick="showQuickViewModal(${v.id})" class="w-full py-2 bg-primary-gold/10 text-primary-gold border border-primary-gold/50 rounded-lg hover:bg-primary-gold hover:text-slate-dark transition duration-200 text-sm font-semibold">
+                                View Full Specs
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+            observeElements('vehicle-grid', '.card-stagger');
+        }
+
+        function toggleCompare(vehicleId) {
+            const id = parseInt(vehicleId);
+            const index = state.compareVehicles.indexOf(id);
+            if (index > -1) {
+                state.compareVehicles.splice(index, 1);
+            } else if (state.compareVehicles.length < 2) {
+                state.compareVehicles.push(id);
+            }
+            renderVehicles(VEHICLES);
+            updateCompareButtonVisibility();
+        }
+
+        function updateCompareButtonVisibility() {
+            const btn = document.getElementById('compare-vehicles-btn');
+            if (btn) {
+                if (state.compareVehicles.length === 2) {
+                    btn.classList.remove('opacity-0', 'pointer-events-none');
+                    btn.classList.add('scale-100');
+                } else {
+                    btn.classList.add('opacity-0', 'pointer-events-none');
+                    btn.classList.remove('scale-100');
+                }
+            }
+        }
+
+        // --- Quick View Modal Logic ---
+        function showQuickViewModal(vehicleId) {
+             const v = VEHICLES.find(item => item.id === vehicleId);
+             if (!v) return;
+
+             document.getElementById('quick-view-title').innerText = v.name;
+             document.getElementById('quick-view-price').innerText = `₹${v.price.toLocaleString('en-IN')}`;
+             document.getElementById('quick-view-engine').innerText = v.engine;
+             document.getElementById('quick-view-mileage').innerText = v.mileage;
+             document.getElementById('quick-view-stock').innerText = v.stock ? 'In Stock' : 'Out of Stock';
+             document.getElementById('quick-view-stock').className = v.stock ? 'text-green-400 font-bold' : 'text-red-400 font-bold';
+             document.getElementById('quick-view-specs').innerText = v.specs;
+
+             document.getElementById('quick-view-modal').classList.remove('hidden');
+             document.getElementById('quick-view-modal-box').classList.add('modal-animate');
+        }
+
+        function hideQuickViewModal() {
+            document.getElementById('quick-view-modal').classList.add('hidden');
+            document.getElementById('quick-view-modal-box').classList.remove('modal-animate');
+        }
+
+
+        // --- Comparison Modal Logic ---
+        function showCompareModal() {
+             if (state.compareVehicles.length !== 2) return;
+             const v1 = VEHICLES.find(v => v.id === state.compareVehicles[0]);
+             const v2 = VEHICLES.find(v => v.id === state.compareVehicles[1]);
+             if (!v1 || !v2) return;
+             const modalContent = document.getElementById('compare-modal-content');
+             modalContent.innerHTML = `
+                <div class="grid grid-cols-3 gap-4 border-b pb-4 mb-4 border-gray-600 font-header font-bold text-lg">
+                    <span>Feature</span>
+                    <span class="text-primary-gold">${v1.name}</span>
+                    <span class="text-primary-gold">${v2.name}</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-3 gap-4 border-b border-gray-700 py-2">
+                        <span class="font-semibold text-primary-gold">Price</span>
+                        <span>₹${v1.price.toLocaleString('en-IN')}</span>
+                        <span>₹${v2.price.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 border-b border-gray-700 py-2">
+                        <span class="font-semibold text-primary-gold">Type</span>
+                        <span>${v1.type}</span>
+                        <span>${v2.type}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 border-b border-gray-700 py-2">
+                        <span class="font-semibold text-primary-gold">Engine</span>
+                        <span>${v1.engine}</span>
+                        <span>${v2.engine}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 border-b border-gray-700 py-2">
+                        <span class="font-semibold text-primary-gold">Mileage</span>
+                        <span>${v1.mileage}</span>
+                        <span>${v2.mileage}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 py-2">
+                        <span class="font-semibold text-primary-gold">Stock</span>
+                        <span class="${v1.stock ? 'text-green-400' : 'text-red-400'}">${v1.stock ? 'In Stock' : 'Out of Stock'}</span>
+                        <span class="${v2.stock ? 'text-green-400' : 'text-red-400'}">${v2.stock ? 'In Stock' : 'Out of Stock'}</span>
+                    </div>
+                </div>
+             `;
+             document.getElementById('compare-modal').classList.remove('hidden');
+             document.getElementById('compare-modal-box').classList.add('modal-animate');
+        }
+
+        function hideCompareModal() {
+            document.getElementById('compare-modal').classList.add('hidden');
+            document.getElementById('compare-modal-box').classList.remove('modal-animate');
+        }
+
+        // --- Booking Form Logic (Updated alert text to English) ---
+        function handleBookingSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = {
+                name: form.name.value,
+                contact: form.contact.value,
+                model: form.model.value,
+                type: form.booking_type.value,
+                date: form.date.value,
+            };
+
+            if (!data.name || !data.contact || data.model === 'default') {
+                showModal('Error', 'Please fill in all required fields (Name, Contact, and Preferred Model).');
+                return;
+            }
+
+            console.log('Booking Data:', data);
+            form.reset();
+            showModal('Success!', `Thank you, ${data.name}! Your request for a ${data.type} of the ${data.model} has been successfully submitted. We will contact you shortly.`);
+        }
+
+        // --- General Modal Logic (Replaces alert()) ---
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('app-modal').classList.remove('hidden');
+            document.getElementById('app-modal-box').classList.add('modal-animate');
+        }
+
+        function hideModal() {
+            document.getElementById('app-modal').classList.add('hidden');
+            document.getElementById('app-modal-box').classList.remove('modal-animate');
+        }
+
+        // --- Contact Form Logic (Updated alert text to English) ---
+         function handleContactSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = {
+                name: form.contact_name.value,
+                email: form.contact_email.value,
+                query: form.contact_query.value,
+            };
+
+            if (!data.name || !data.email || !data.query) {
+                showModal('Error', 'Please fill in all contact form fields.');
+                return;
+            }
+
+            console.log('Contact Query:', data);
+            form.reset();
+            showModal('Query Received', `Thank you, ${data.name}. We have received your query and will respond to ${data.email} as soon as possible.`);
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('booking-model');
+            if (select) {
+                VEHICLES.forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = v.name;
+                    option.textContent = v.name;
+                    select.appendChild(option);
+                });
+            }
+            navigate('home');
+            document.body.classList.add('dark', 'bg-slate-dark');
+            document.getElementById('theme-toggle-icon').classList.add('fa-sun');
+        });
+    </script>
+
+    <!-- Font Awesome for Icons --><script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <!-- -------------------------- MODALS -------------------------- --><!-- Confirmation Modal (App-level) --><div id="app-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center transition-opacity duration-300">
+        <div id="app-modal-box" class="glass-panel p-6 rounded-2xl shadow-2xl w-full max-w-sm">
+            <h3 id="modal-title" class="text-2xl font-bold font-header mb-4 text-primary-gold">Title</h3>
+            <p id="modal-message" class="mb-6 text-gray-300"></p>
+            <button onclick="hideModal()" class="w-full py-2 bg-primary-gold text-slate-dark rounded-lg hover:bg-secondary-gold transition duration-200 font-semibold shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Comparison Modal --><div id="compare-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-40 flex items-center justify-center transition-opacity duration-300">
+        <div id="compare-modal-box" class="glass-panel p-6 rounded-2xl shadow-2xl w-full max-w-2xl">
+            <h3 class="text-2xl font-bold font-header mb-6 text-white border-b border-gray-700 pb-3">Vehicle Comparison (Side-by-Side)</h3>
+            <div id="compare-modal-content" class="text-gray-300">
+                <!-- Content injected by JS --></div>
+            <button onclick="hideCompareModal()" class="mt-6 py-2 px-4 bg-primary-gold text-slate-dark rounded-lg hover:bg-secondary-gold transition duration-200 font-semibold shadow-md">
+                Done
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick View Specs Modal --><div id="quick-view-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-40 flex items-center justify-center transition-opacity duration-300">
+        <div id="quick-view-modal-box" class="glass-panel p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="quick-view-title" class="text-3xl font-bold font-header text-gradient">Vehicle Name</h3>
+                <button onclick="hideQuickViewModal()" class="text-gray-400 hover:text-primary-gold transition">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-gray-300 mb-6 border-b border-gray-700 pb-4">
+                <div class="flex justify-between">
+                    <span class="font-semibold text-primary-gold">Price:</span>
+                    <span id="quick-view-price"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold text-primary-gold">Engine:</span>
+                    <span id="quick-view-engine"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold text-primary-gold">Mileage:</span>
+                    <span id="quick-view-mileage"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold text-primary-gold">Availability:</span>
+                    <span id="quick-view-stock"></span>
+                </div>
+            </div>
+
+            <h4 class="text-xl font-bold text-white mb-2">Key Specs & Features:</h4>
+            <p id="quick-view-specs" class="text-gray-400 text-sm leading-relaxed"></p>
+
+            <button onclick="hideQuickViewModal()" class="mt-6 w-full py-2 bg-primary-gold text-slate-dark rounded-lg hover:bg-secondary-gold transition duration-200 font-semibold shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+    
+    <!-- 3D Viewer Modal (NEW) --><div id="viewer-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-40 flex items-center justify-center transition-opacity duration-300">
+        <div id="viewer-modal-box" class="glass-panel p-8 rounded-2xl shadow-2xl w-full max-w-xl">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-3xl font-bold font-header text-primary-gold">3D Interactive Viewer</h3>
+                <button onclick="hide3DViewerModal()" class="text-gray-400 hover:text-primary-gold transition">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <p class="text-gray-400 mb-4 text-sm">Drag or touch the model to rotate it.</p>
+            <div id="threejs-modal-container" class="h-[400px] bg-slate-dark/50 rounded-xl mb-6 border border-primary-gold/50">
+                <!-- 3D Canvas will be injected here --></div>
+            <button onclick="hide3DViewerModal()" class="w-full py-2 bg-primary-gold text-slate-dark rounded-lg hover:bg-secondary-gold transition duration-200 font-semibold shadow-md">
+                Close Viewer
+            </button>
+        </div>
+    </div>
+
+
+    <!-- -------------------------- NAVBAR -------------------------- --><!-- Glassmorphism Style for Navbar --><nav class="sticky top-0 z-30 shadow-xl backdrop-blur-xl bg-slate-dark/80 border-b border-[#333333] transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand --><a href="#" onclick="navigate('home')" class="flex items-center text-2xl font-extrabold font-header text-gradient hover:opacity-80 transition duration-200">
+                    <i class="fas fa-motorcycle text-primary-gold mr-2 text-3xl"></i>
+                    MotoForge
+                </a>
+
+                <!-- Desktop Menu --><div class="hidden md:flex space-x-8 items-center">
+                    <a href="#" data-page="home" onclick="navigate('home')" class="nav-link text-gray-300 hover:text-primary-gold transition duration-200">Home</a>
+                    <a href="#" data-page="explore" onclick="navigate('explore')" class="nav-link text-gray-300 hover:text-primary-gold transition duration-200">Explore</a>
+                    <a href="#" data-page="reviews" onclick="navigate('reviews')" class="nav-link text-gray-300 hover:text-primary-gold transition duration-200">Reviews</a>
+                    <button onclick="navigate('booking')" class="px-4 py-1.5 bg-primary-gold text-slate-dark rounded-full font-semibold shadow-lg hover:bg-secondary-gold transform hover:scale-[1.05] transition duration-300">
+                        Book Ride
+                    </button>
+                    <a href="#" data-page="contact" onclick="navigate('contact')" class="nav-link text-gray-300 hover:text-primary-gold transition duration-200">Contact</a>
+                </div>
+
+                <!-- Icons & Mobile Menu Button --><div class="flex items-center space-x-4">
+                    <!-- Theme Toggle --><button id="theme-toggle" onclick="toggleTheme()" class="text-gray-400 hover:text-primary-gold p-2 rounded-full transition duration-200">
+                        <i id="theme-toggle-icon" class="fas fa-sun text-xl"></i>
+                    </button>
+
+                    <!-- Mobile Menu Button --><button class="md:hidden text-gray-400 hover:text-primary-gold p-2 rounded-lg transition duration-200" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) - Also Glassmorphism --><div id="mobile-menu" class="hidden md:hidden absolute w-full glass-panel shadow-lg border-t border-[#333333]">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col items-start">
+                <a href="#" onclick="navigate('home')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-[#333333] hover:text-white">Home</a>
+                <a href="#" onclick="navigate('explore')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-[#333333] hover:text-white">Explore Vehicles</a>
+                <a href="#" onclick="navigate('reviews')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-[#333333] hover:text-white">Reviews</a>
+                <a href="#" onclick="navigate('booking')" class="block px-3 py-2 rounded-md text-base font-medium text-primary-gold hover:bg-[#333333]">Book Test Ride</a>
+                <a href="#" onclick="navigate('contact')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-[#333333] hover:text-white">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto">
+        <!-- -------------------------- HOME PAGE -------------------------- --><section id="page-home" class="page-section pt-10 px-4 md:px-8">
+            <!-- Hero Section --><div id="hero-section-container" class="relative bg-slate-mid rounded-2xl overflow-hidden shadow-2xl p-6 md:p-16 mb-20 border border-primary-gold/50 min-h-[500px] flex items-center justify-center">
+                <!-- Static Background Glow (Simplified) --><div class="absolute inset-0 opacity-10">
+                    <div class="w-64 h-64 bg-primary-gold rounded-full absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 blur-3xl opacity-50 animate-pulse"></div>
+                    <div class="w-48 h-48 bg-secondary-gold rounded-full absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 blur-3xl opacity-50 animate-pulse delay-500"></div>
+                </div>
+
+                <div id="hero-content-box" class="relative z-10 text-center">
+                    <h1 class="text-5xl md:text-7xl font-extrabold font-header mb-4 animate-on-scroll is-visible" style="transition-delay: 0s;">
+                        <span class="text-gradient">The Fusion of Power and Style.</span>
+                        <br class="hidden md:block">
+                        Your Digital Showroom.
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-8 animate-on-scroll is-visible" style="transition-delay: 0.2s;">
+                        Explore, compare, and easily book the newest two-wheelers.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 animate-on-scroll is-visible" style="transition-delay: 0.4s;">
+                        <button onclick="navigate('explore')" class="px-6 py-3 bg-primary-gold text-slate-dark text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition duration-300 pulse-animation">
+                            Explore Vehicles
+                        </button>
+                        <button onclick="show3DViewerModal()" class="px-6 py-3 border border-primary-gold text-primary-gold text-lg font-semibold rounded-full hover:bg-primary-gold/10 transition duration-300 hover:scale-[1.02]">
+                            <i class="fas fa-cube mr-2"></i> View 3D Model
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Highlights Section --><div class="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
+                <!-- Card 1 --><div data-index="0" class="p-6 rounded-xl border border-primary-gold/50 shadow-xl bg-slate-mid card-hover transition duration-300 animate-on-scroll card-stagger">
+                    <i class="fas fa-search text-4xl text-primary-gold mb-4"></i>
+                    <h3 class="text-2xl font-bold font-header text-white mb-2">Detailed Specs</h3>
+                    <p class="text-gray-400">View engine, mileage, and features for every model in our inventory.</p>
+                </div>
+                <!-- Card 2 --><div data-index="1" class="p-6 rounded-xl border border-primary-gold/50 shadow-xl bg-slate-mid card-hover transition duration-300 animate-on-scroll card-stagger">
+                    <i class="fas fa-star text-4xl text-primary-gold mb-4"></i>
+                    <h3 class="text-2xl font-bold font-header text-white mb-2">Genuine Reviews</h3>
+                    <p class="text-gray-400">Read what real customers say to make an informed purchasing decision.</p>
+                </div>
+                <!-- Card 3 --><div data-index="2" class="p-6 rounded-xl border border-primary-gold/50 shadow-xl bg-slate-mid card-hover transition duration-300 animate-on-scroll card-stagger">
+                    <i class="fas fa-calendar-check text-4xl text-primary-gold mb-4"></i>
+                    <h3 class="text-2xl font-bold font-header text-white mb-2">Book Online</h3>
+                    <p class="text-gray-400">Reserve a vehicle or schedule a test ride instantly with simple forms.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- -------------------------- EXPLORE PAGE -------------------------- --><section id="page-explore" class="page-section px-4 md:px-8 pt-10" style="display:none;">
+            <h2 class="text-4xl md:text-5xl font-extrabold font-header mb-8 text-center text-gradient">Explore Our Fleet</h2>
+
+            <!-- Filter & Comparison Control --><div class="flex flex-col md:flex-row justify-between items-center bg-slate-mid p-4 rounded-xl shadow-lg mb-8 border border-[#333333] animate-on-scroll">
+                <div class="w-full md:w-auto mb-4 md:mb-0">
+                    <label for="filter-type" class="text-sm font-medium text-gray-400 mr-2">Filter by Category:</label>
+                    <select id="filter-type" onchange="renderVehicles(VEHICLES.filter(v => this.value === 'all' || v.type === this.value))"
+                            class="p-2 rounded-lg bg-slate-dark border border-primary-gold/50 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                        <option value="all">All Vehicles</option>
+                        <option value="Bike">Motorcycles</option>
+                        <option value="Scooter">Scooters</option>
+                    </select>
+                </div>
+                 <!-- Compare Button --><button id="compare-vehicles-btn" onclick="showCompareModal()"
+                        class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-full shadow-lg hover:bg-blue-600 transition duration-300 transform scale-0 hover:scale-[1.05]">
+                    <i class="fas fa-balance-scale mr-2"></i> Compare (2 Selected)
+                </button>
+            </div>
+
+            <!-- Vehicle Grid --><div id="vehicle-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+                <!-- Vehicle cards will be injected here by JS with animate-on-scroll --></div>
+        </section>
+
+
+        <!-- -------------------------- BOOKING PAGE -------------------------- --><section id="page-booking" class="page-section px-4 md:px-8 pt-10" style="display:none;">
+            <h2 class="text-4xl md:text-5xl font-extrabold font-header mb-8 text-center text-gradient">Book Your Test Ride or Reservation</h2>
+
+            <div class="max-w-2xl mx-auto bg-slate-mid p-6 md:p-10 rounded-2xl shadow-2xl border border-[#333333] animate-on-scroll">
+                <p class="text-gray-400 mb-6">Fill in your details below to schedule a test ride or reserve a vehicle online. A showroom representative will confirm your appointment.</p>
+
+                <form onsubmit="handleBookingSubmit(event)">
+                    <!-- Booking Type --><div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Booking Type</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center hover:scale-[1.02] transition duration-200">
+                                <input type="radio" name="booking_type" value="Test Ride" checked
+                                       class="form-radio h-5 w-5 text-primary-gold border-gray-600 focus:ring-primary-gold">
+                                <span class="ml-2 text-white">Test Ride</span>
+                            </label>
+                            <label class="inline-flex items-center hover:scale-[1.02] transition duration-200">
+                                <input type="radio" name="booking_type" value="Reservation"
+                                       class="form-radio h-5 w-5 text-primary-gold border-gray-600 focus:ring-primary-gold">
+                                <span class="ml-2 text-white">Reservation</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Personal Details --><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                            <input type="text" id="name" name="name" required placeholder="John Doe"
+                                   class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                        </div>
+                        <div>
+                            <label for="contact" class="block text-sm font-medium text-gray-300 mb-2">Contact Number / Email</label>
+                            <input type="text" id="contact" name="contact" required placeholder="1234567890 or example@mail.com"
+                                   class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                        </div>
+                    </div>
+
+                    <!-- Vehicle & Date --><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                         <div>
+                            <label for="booking-model" class="block text-sm font-medium text-gray-300 mb-2">Preferred Model</label>
+                            <select id="booking-model" name="model" required
+                                    class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                                <option value="default" disabled selected>Select a Vehicle...</option>
+                                <!-- Options will be injected by JS --></select>
+                        </div>
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-300 mb-2">Preferred Date/Time</label>
+                            <input type="datetime-local" id="date" name="date" value=""
+                                   class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-primary-gold text-slate-dark text-xl font-semibold rounded-lg shadow-xl hover:bg-secondary-gold transform hover:scale-[1.02] transition duration-300">
+                        Confirm Booking Request
+                    </button>
+                </form>
+            </div>
+        </section>
+
+
+        <!-- -------------------------- REVIEWS PAGE -------------------------- --><section id="page-reviews" class="page-section px-4 md:px-8 pt-10" style="display:none;">
+             <h2 class="text-4xl md:text-5xl font-extrabold font-header mb-12 text-center text-gradient">Customer Testimonials</h2>
+
+             <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
+                <!-- Review Cards --><script>
+                    const reviewsContainer = document.getElementById('reviews-grid');
+                    REVIEWS.forEach((review, index) => {
+                        const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                        reviewsContainer.innerHTML += `
+                            <div data-index="${index}" class="card-stagger animate-on-scroll">
+                                <div class="p-6 rounded-xl shadow-xl bg-slate-mid border border-primary-gold/20 card-hover transition duration-300">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <p class="text-lg font-bold text-white">${review.name}</p>
+                                        <span class="text-xl text-yellow-400">${stars}</span>
+                                    </div>
+                                    <p class="italic mb-4 text-gray-300">"${review.text}"</p>
+                                    <p class="text-xs text-gray-500">Reviewed on ${review.date}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                </script>
+            </div>
+
+            <!-- FAQ Section --><div class="py-10">
+                <h3 class="text-3xl font-bold font-header mb-6 text-white text-center animate-on-scroll">Frequently Asked Questions</h3>
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <div data-index="0" class="bg-slate-mid p-4 rounded-lg border border-[#333333] animate-on-scroll card-stagger">
+                        <p class="font-semibold text-primary-gold">1. What documents do I need for a test ride?</p>
+                        <p class="text-gray-400 mt-2 text-sm">You only need a valid driving license for the test ride of a two-wheeler.</p>
+                    </div>
+                    <div data-index="1" class="bg-slate-mid p-4 rounded-lg border border-[#333333] animate-on-scroll card-stagger">
+                        <p class="font-semibold text-primary-gold">2. How long does the reservation process take?</p>
+                        <p class="text-gray-400 mt-2 text-sm">Once submitted, our team will call you within 2 hours during business hours to confirm your reservation details.</p>
+                    </div>
+                    <div data-index="2" class="bg-slate-mid p-4 rounded-lg border border-[#333333] animate-on-scroll card-stagger">
+                        <p class="font-semibold text-primary-gold">3. Can I finance my vehicle through MotoForge?</p>
+                        <p class="text-gray-400 mt-2 text-sm">Yes, we have partnerships with multiple banks. Please visit the showroom for personalized financing options.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- -------------------------- CONTACT PAGE -------------------------- --><section id="page-contact" class="page-section px-4 md:px-8 pt-10 pb-20" style="display:none;">
+             <h2 class="text-4xl md:text-5xl font-extrabold font-header mb-12 text-center text-gradient">Get In Touch</h2>
+
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                <!-- Contact Form --><div class="p-8 bg-slate-mid rounded-2xl shadow-2xl border border-[#333333] animate-on-scroll">
+                    <h3 class="text-3xl font-bold font-header mb-6 text-white">Send Us a Message</h3>
+                    <form onsubmit="handleContactSubmit(event)">
+                        <div class="mb-4">
+                            <label for="contact_name" class="block text-sm font-medium text-gray-300 mb-2">Your Name</label>
+                            <input type="text" id="contact_name" name="contact_name" required
+                                   class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                        </div>
+                        <div class="mb-4">
+                            <label for="contact_email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <input type="email" id="contact_email" name="contact_email" required
+                                   class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                        </div>
+                        <div class="mb-6">
+                            <label for="contact_query" class="block text-sm font-medium text-gray-300 mb-2">Your Query</label>
+                            <textarea id="contact_query" name="contact_query" rows="4" required
+                                      class="w-full p-3 rounded-lg bg-slate-dark border border-primary-gold/30 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-primary-gold text-slate-dark font-semibold rounded-lg hover:bg-secondary-gold transition duration-200 transform hover:scale-[1.01]">
+                            Submit Query
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Store Info & Map --><div class="space-y-6">
+                    <div class="p-8 bg-slate-mid rounded-2xl shadow-xl border border-[#333333] animate-on-scroll card-stagger" data-index="0">
+                        <h3 class="text-3xl font-bold font-header mb-4 text-white">Visit Our Store</h3>
+                        <p class="text-gray-400 mb-4">
+                            <i class="fas fa-map-marker-alt text-primary-gold mr-2"></i>
+                            Plot 42, Innovation Hub, Main Street, Technopark, 682030.
+                        </p>
+                        <p class="text-gray-400 mb-4">
+                            <i class="fas fa-phone text-primary-gold mr-2"></i>
+                            +91 98765 43210
+                        </p>
+                         <p class="text-gray-400">
+                            <i class="fas fa-clock text-primary-gold mr-2"></i>
+                            Mon - Sat: 9:00 AM - 7:00 PM
+                        </p>
+                    </div>
+
+                    <!-- Integrated Google Map Placeholder --><div class="h-64 rounded-2xl overflow-hidden shadow-xl border-4 border-primary-gold/50 animate-on-scroll card-stagger" data-index="1">
+                        <!-- Showroom Rep image placeholder --><img src="https://placehold.co/600x400/171717/FF5733?text=MotoForge+Showroom+Representative" alt="Showroom Representative Placeholder" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- -------------------------- FOOTER -------------------------- --><footer class="bg-slate-dark/90 border-t border-[#333333] mt-10 relative">
+        <!-- Wavy Separator (Above Footer) --><div class="footer-wave absolute w-full"></div>
+
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <!-- Column 1: Brand --><div class="animate-on-scroll card-stagger" data-index="0">
+                    <h4 class="text-xl font-extrabold font-header text-gradient mb-4">MotoForge</h4>
+                    <p class="text-sm text-gray-400">The premier digital showroom experience for two-wheelers.</p>
+                </div>
+
+                <!-- Column 2: Quick Links --><div class="animate-on-scroll card-stagger" data-index="1">
+                    <h4 class="text-lg font-semibold font-header text-white mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-primary-gold transition duration-200">About Us</a></li>
+                        <li><a href="#" class="hover:text-primary-gold transition duration-200">Careers</a></li>
+                        <li><a href="#" onclick="navigate('contact')" class="hover:text-primary-gold transition duration-200">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Legal --><div class="animate-on-scroll card-stagger" data-index="2">
+                    <h4 class="text-lg font-semibold font-header text-white mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-primary-gold transition duration-200">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-primary-gold transition duration-200">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-primary-gold transition duration-200">Refund Policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Social Media --><div class="animate-on-scroll card-stagger" data-index="3">
+                    <h4 class="text-lg font-semibold font-header text-white mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary-gold text-xl transition duration-200 hover:scale-110"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary-gold text-xl transition duration-200 hover:scale-110"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary-gold text-xl transition duration-200 hover:scale-110"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center text-sm text-gray-500 border-t border-[#333333] pt-4">
+                &copy; 2025 MotoForge. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- -------------------------- AI ASSISTANT WIDGET -------------------------- --><div class="assistant-container">
+        <!-- Chat Box --><div id="assistant-chat-box" class="hidden assistant-chat-box rounded-xl p-4 flex flex-col transition duration-300">
+            <!-- Header --><div class="flex justify-between items-center pb-3 mb-3 border-b border-primary-gold/30">
+                <h4 class="text-lg font-bold font-header text-primary-gold">AI Showroom Assistant</h4>
+                <button onclick="toggleAssistant()" class="text-gray-400 hover:text-primary-gold transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <!-- Body (Chat History) --><div id="assistant-chat-body" class="flex-grow overflow-y-auto mb-3 pr-1 text-gray-200 space-y-3">
+                <!-- Messages injected here --></div>
+            <!-- Input --><form onsubmit="handleAssistantSubmit(event)" class="flex">
+                <input type="text" id="assistant-input" placeholder="Ask for a recommendation..."
+                       class="flex-grow p-2 rounded-l-lg bg-slate-dark border border-primary-gold/50 text-white focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition duration-200">
+                <button type="submit" id="assistant-submit-btn" class="p-2 rounded-r-lg bg-primary-gold text-slate-dark hover:bg-secondary-gold relative w-12">
+                     <i id="assistant-spinner" class="fas fa-spinner fa-spin hidden"></i>
+                     <i class="fas fa-arrow-up" id="assistant-send-icon"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Floating Button --><button onclick="toggleAssistant()" class="w-16 h-16 bg-primary-gold text-slate-dark rounded-full shadow-2xl pulse-animation hover:scale-105 transition duration-300 flex items-center justify-center mt-3">
+            <i id="assistant-icon" class="fas fa-robot text-2xl"></i>
+        </button>
+    </div>
+
+</body>
+</html>
